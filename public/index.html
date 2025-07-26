@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Eco AI</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="flex flex-col h-screen bg-white text-gray-800">
+
+<!-- Top Navbar -->
+<nav class="w-full border-b border-gray-200 flex justify-between items-center px-6 py-3 bg-white">
+  <!-- Left side -->
+  <div class="flex items-center gap-3">
+    <img src="assets/Icon.png" alt="EcoAI Logo" class="w-10 h-10" />
+    <div>
+      <div class="text-sm font-medium">Standard plan</div>
+      <div class="text-xs text-green-600">● Active 35 000 Eco-friendly nodes</div>
+    </div>
+  </div>
+
+  <!-- Right side -->
+  <div class="flex items-center gap-6 text-sm text-gray-600">
+    <a href="#" class="text-yellow-600 font-medium">Upgrade Plan ⚡</a>
+    <a href="#" class="hover:underline">Help</a>
+    <a href="#" class="hover:underline">API</a>
+    <div class="flex items-center gap-2">
+      <div class="bg-black text-white text-xs font-semibold px-2 py-1 rounded">GG</div>
+      <span>Greg Gregor</span>
+    </div>
+  </div>
+</nav>
+
+<!-- Main Layout -->
+<div class="flex flex-1 overflow-hidden">
+
+  <!-- Sidebar -->
+  <aside class="w-72 border-r border-gray-200 p-6 flex flex-col">
+    <h1 class="text-2xl font-semibold mb-6">Main</h1>
+
+    <div class="mb-4">
+      <h2 class="text-sm font-semibold mb-2">Mode</h2>
+      <div class="space-y-3 text-sm">
+        <label class="flex items-start gap-2 cursor-pointer">
+          <input type="radio" name="mode" class="mt-1" />
+          <span><strong>Creative mode</strong><br/>
+            Designed to assist and inspire creativity.
+          </span>
+        </label>
+        <label class="flex items-start gap-2 cursor-pointer">
+          <input type="radio" name="mode" checked class="mt-1" />
+          <span><strong>Balanced mode</strong><br/>
+            Balance between helpful responses and boundaries.
+          </span>
+        </label>
+        <label class="flex items-start gap-2 cursor-pointer">
+          <input type="radio" name="mode" class="mt-1" />
+          <span><strong>Strict mode</strong><br/>
+            Strict rules or guidelines for queries.
+          </span>
+        </label>
+      </div>
+    </div>
+
+    <select class="border text-sm p-2 rounded w-full mb-4">
+      <option>Version GPT 3.5</option>
+    </select>
+
+    <div class="space-y-2 text-sm">
+      <label class="flex items-center gap-2">
+        <input type="checkbox" checked />
+        Show resource-link
+      </label>
+      <label class="flex items-center gap-2">
+        <input type="checkbox" checked />
+        Show proposed prompt
+      </label>
+      <label class="flex items-center gap-2">
+        <input type="checkbox" />
+        Dark mode
+      </label>
+    </div>
+
+    <div class="mt-auto space-x-2 pt-8">
+      <button class="text-sm border px-3 py-1 rounded">History</button>
+      <button class="text-sm border px-3 py-1 bg-black text-white rounded">Main</button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-1 flex flex-col justify-between overflow-y-auto">
+
+    <!-- Top Info -->
+    <div class="p-8 text-center">
+      <h1 class="text-3xl font-semibold">Eco Ai</h1>
+      <p class="text-sm text-gray-500 mt-1">Ver 1.0 Jul 26</p>
+
+      <!-- Chat messages area - initially hidden -->
+      <div id="chatMessages" class="max-w-4xl mx-auto mb-6 p-4 border rounded-lg h-64 overflow-y-auto bg-gray-50 text-gray-900 hidden"></div>
+
+      <!-- Tiles container - initially visible -->
+      <div id="tilesContainer" class="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-4xl mx-auto">
+        <!-- Tile base styles include fixed height and scrollable overflow -->
+        <style>
+          .eco-tile {
+            height: 280px; /* fixed height */
+            overflow-y: auto; /* vertical scroll if needed */
+            cursor: pointer;
+            transition: box-shadow 0.2s ease;
+          }
+          .eco-tile:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+          }
+        </style>
+
+        <div class="border rounded-xl p-4 eco-tile" onclick="startChat('What is Eco-AI? Eco-AI leverages a decentralized network of consumer-owned devices to run large language models, reducing reliance on massive data centers.')">
+          <h2 class="font-semibold mb-2">What is Eco-AI?</h2>
+          <p class="text-sm text-gray-700">
+            Eco-AI leverages a decentralized network of consumer-owned devices to run large language models, reducing reliance on massive data centers.
+          </p>
+        </div>
+
+        <div class="border rounded-xl p-4 eco-tile" onclick="startChat('Why Eco-AI Matters: By using existing devices, Eco-AI cuts down on energy waste, greenhouse gas emissions, and water consumption from traditional AI data centers.')">
+          <h2 class="font-semibold mb-2">Why Eco-AI Matters</h2>
+          <p class="text-sm text-gray-700">
+            By using existing devices, Eco-AI cuts down on energy waste, greenhouse gas emissions, and water consumption from traditional AI data centers.
+          </p>
+        </div>
+
+        <div class="border rounded-xl p-4 eco-tile" onclick="startChat('Environmental Impact: Reduces CO₂ emissions by up to 70%, saves billions of liters of water annually, and minimizes electronic waste by utilizing existing hardware.')">
+          <h2 class="font-semibold mb-2">Environmental Impact</h2>
+          <ul class="text-sm list-disc list-inside text-green-700">
+            <li>Reduces CO₂ emissions by up to 70%</li>
+            <li>Saves billions of liters of water annually</li>
+            <li>Minimizes electronic waste by utilizing existing hardware</li>
+          </ul>
+        </div>
+
+        <div class="border rounded-xl p-4 eco-tile" 
+          onclick="startChat('Eco-AI vs Large AI Companies (2024): Traditional AI data centers consume ~10 million liters of water daily, ~2.5 TWh energy per year, and emit ~750,000 metric tons of CO₂, equivalent to a mid-sized city. Eco-AI uses distributed computing to dramatically reduce these impacts.')"
+          style="display: flex; flex-direction: column; height: 280px; overflow: hidden;">
+          <h2 class="font-semibold mb-2">Eco-AI vs Large AI Companies (2024)</h2>
+          <div style="flex-grow: 1; overflow-y: auto; max-height: 220px;">
+            <table class="text-xs w-full border-collapse border border-gray-300" style="min-width: 100%; font-size: 0.75rem;">
+              <thead>
+                <tr class="bg-gray-100">
+                  <th class="text-left p-1 border border-gray-300">Metric</th>
+                  <th class="text-left p-1 border border-gray-300">Eco-AI</th>
+                  <th class="text-left p-1 border border-gray-300">Traditional AI</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="p-1 border border-gray-300">Water Consumption (Daily Use)</td>
+                  <td class="p-1 border border-gray-300">~100 liters</td>
+                  <td class="p-1 border border-gray-300">~10 million liters</td>
+                </tr>
+                <tr>
+                  <td class="p-1 border border-gray-300">Water Consumption (Model Training)</td>
+                  <td class="p-1 border border-gray-300">Negligible (Distributed)</td>
+                  <td class="p-1 border border-gray-300">~700,000 liters per training cycle</td>
+                </tr>
+                <tr>
+                  <td class="p-1 border border-gray-300">Annual Energy Use</td>
+                  <td class="p-1 border border-gray-300">~500 MWh (from user devices)</td>
+                  <td class="p-1 border border-gray-300">~2.5 TWh (equivalent to a small city)</td>
+                </tr>
+                <tr>
+                  <td class="p-1 border border-gray-300">CO₂ Emissions</td>
+                  <td class="p-1 border border-gray-300">~150 metric tons</td>
+                  <td class="p-1 border border-gray-300">~750,000 metric tons (similar to a mid-sized city)</td>
+                </tr>
+                <tr>
+                  <td class="p-1 border border-gray-300">Energy Use Equivalent</td>
+                  <td class="p-1 border border-gray-300">Equivalent to ~1,000 homes</td>
+                  <td class="p-1 border border-gray-300">Equivalent to entire city like San Francisco</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="border rounded-xl p-4 eco-tile" onclick="startChat('How Eco-AI Works: Users contribute their device’s idle compute power to run AI models locally, forming a distributed and eco-friendly AI network.')">
+          <h2 class="font-semibold mb-2">How Eco-AI Works</h2>
+          <p class="text-sm text-gray-700">
+            Users contribute their device’s idle compute power to run AI models locally, forming a distributed and eco-friendly AI network.
+          </p>
+        </div>
+
+        <div class="border rounded-xl p-4 eco-tile" onclick="startChat('Benefits for You & the Planet: Lower latency with local compute, reduced environmental footprint, empowers users to support sustainable AI.')">
+          <h2 class="font-semibold mb-2">Benefits for You & the Planet</h2>
+          <ul class="text-sm list-disc list-inside text-blue-600">
+            <li>Lower latency with local compute</li>
+            <li>Reduced environmental footprint</li>
+            <li>Empowers users to support sustainable AI</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Input Area with Left-Aligned Checkbox - initially hidden -->
+    <div id="inputArea" class="border-t border-gray-200 p-4">
+      <div class="flex items-center gap-2 max-w-4xl mx-auto">
+        <label for="ecoFriendlyCheckbox" class="inline-flex items-center space-x-2 text-gray-700 text-sm select-none">
+          <input
+            type="checkbox"
+            id="ecoFriendlyCheckbox"
+            class="form-checkbox h-4 w-4 text-green-600"
+            checked
+          />
+          <span>Eco-friendly Responses</span>
+        </label>
+
+        <button id="attachBtn" class="p-2">
+          <img src="assets/clip.png" alt="Attach" class="w-6 h-6" />
+        </button>
+
+        <input
+          id="userInput"
+          placeholder="Send a message"
+          class="flex-1 border border-gray-300 px-4 py-2 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+
+        <button id="micBtn" class="p-2">
+          <img src="assets/mic.png" alt="Microphone" class="w-6 h-6" />
+        </button>
+
+        <button id="sendBtn" class="p-2 ml-2">
+          <img src="assets/send.png" alt="Send" class="w-6 h-6" />
+        </button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  const chatMessages = document.getElementById('chatMessages');
+  const userInput = document.getElementById('userInput');
+  const sendBtn = document.getElementById('sendBtn');
+  const ecoCheckbox = document.getElementById('ecoFriendlyCheckbox');
+  const tilesContainer = document.getElementById('tilesContainer');
+  const inputArea = document.getElementById('inputArea');
+
+  function appendMessage(text, sender = 'user') {
+    const msgDiv = document.createElement('div');
+    msgDiv.className = sender === 'user'
+      ? 'text-right mb-2'
+      : 'text-left mb-2 text-gray-700';
+
+    msgDiv.innerHTML = `<span class="inline-block px-4 py-2 rounded-lg ${
+      sender === 'user' ? 'bg-blue-600 text-white' : 'bg-gray-200'
+    }">${text}</span>`;
+
+    chatMessages.appendChild(msgDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  function showChatUI() {
+    tilesContainer.classList.add('hidden');
+    chatMessages.classList.remove('hidden');
+    inputArea.classList.remove('hidden');
+    userInput.focus();
+  }
+
+  async function sendMessageToAPI(initialMessage) {
+    appendMessage(initialMessage, 'user');
+
+    try {
+      const res = await fetch('http://localhost:3000/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: [
+            {
+              role: 'user',
+              content: initialMessage
+            }
+          ]
+        })
+      });
+
+      const data = await res.json();
+      if (data.reply) {
+        appendMessage(data.reply, 'bot');
+      } else {
+        appendMessage('Something went wrong. No reply.', 'bot');
+      }
+    } catch (err) {
+      console.error(err);
+      appendMessage('Failed to connect to server.', 'bot');
+    }
+  }
+
+  function startChat(initialMessage) {
+    showChatUI();
+    sendMessageToAPI(initialMessage);
+  }
+
+  function sendMessage() {
+    const text = userInput.value.trim();
+    if (!text) return;
+
+    // Only show chat UI if it hasn’t started yet
+    if (!chatMessages.classList.contains('hidden')) {
+      appendMessage(text, 'user');
+    } else {
+      showChatUI();
+    }
+
+    userInput.value = '';
+    sendMessageToAPI(text);
+  }
+
+  sendBtn.addEventListener('click', sendMessage);
+  userInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+</script>
+
+
+
+</body>
+</html>
