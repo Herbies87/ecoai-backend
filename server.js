@@ -13,11 +13,16 @@ config();
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+const io = new Server(server, {
+  cors: {
+    origin: '*',
+    methods: ['GET', 'POST']
+  }
+});
 
 const port = process.env.PORT || 3000;
 
-// Needed to resolve __dirname in ES modules
+// Resolve __dirname in ES module
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -25,32 +30,31 @@ const __dirname = path.dirname(__filename);
 app.use(cors());
 app.use(express.json());
 
-// Serve static files from 'public' folder
+// Serve static files from public directory
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Serve index.html at root URL
+// Serve root page
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Optional route for chat.html
+// Optional routes
 app.get('/chat', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'chat.html'));
 });
 
-// Serve dashboard.html for user count dashboard
 app.get('/dashboard', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
 });
 
-// Initialize OpenAI client with your API key from .env
+// OpenAI client initialization
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-// Rate limiter config: max 10 requests per minute per IP
+// Rate limiting for OpenAI endpoint
 const limiter = rateLimit({
-  windowMs: 60 * 1000, // 1 minute
+  windowMs: 60 * 1000,
   max: 10,
   message: {
     error: 'Too many requests, please try again later to help save the planet 🌍'
@@ -59,7 +63,10 @@ const limiter = rateLimit({
   legacyHeaders: false,
 });
 
-// Chat API endpoint
+// Track total chats for dashboard
+let totalChatsToday = 0;
+
+// OpenAI chat API
 app.post('/chat', limiter, async (req, res) => {
   try {
     const { messages } = req.body;
@@ -68,7 +75,6 @@ app.post('/chat', limiter, async (req, res) => {
       return res.status(400).json({ error: 'Invalid messages format' });
     }
 
-    // Call OpenAI chat completion API
     const completion = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
       messages,
@@ -76,6 +82,10 @@ app.post('/chat', limiter, async (req, res) => {
     });
 
     const reply = completion.choices[0].message.content;
+
+    totalChatsToday++;
+    io.emit('chatStatsUpdated', totalChatsToday);
+
     res.json({ reply });
   } catch (error) {
     console.error('OpenAI API error:', error);
@@ -83,22 +93,22 @@ app.post('/chat', limiter, async (req, res) => {
   }
 });
 
-// Track current active users via Socket.io
-let currentUsers = 0;
+// --- Live user tracking using Set ---
+const activeConnections = new Set();
 
 io.on('connection', (socket) => {
-  currentUsers++;
-  console.log(`User connected. Total users: ${currentUsers}`);
-  io.emit('usersUpdated', currentUsers);
+  activeConnections.add(socket.id);
+  console.log(`🔌 User connected: ${socket.id} | Active: ${activeConnections.size}`);
+  io.emit('usersUpdated', activeConnections.size);
 
   socket.on('disconnect', () => {
-    currentUsers--;
-    console.log(`User disconnected. Total users: ${currentUsers}`);
-    io.emit('usersUpdated', currentUsers);
+    activeConnections.delete(socket.id);
+    console.log(`❌ User disconnected: ${socket.id} | Active: ${activeConnections.size}`);
+    io.emit('usersUpdated', activeConnections.size);
   });
 });
 
-// Start server using the HTTP server instead of app.listen
+// Start HTTP server
 server.listen(port, () => {
-  console.log(`Server listening on http://localhost:${port}`);
+  console.log(`✅ Server running at http://localhost:${port}`);
 });
