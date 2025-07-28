@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Spinning Globe with amCharts 5</title>
+  <style>
+    #chartdiv {
+      width: 100%;
+      height: 600px;
+    }
+    body, html {
+      margin: 0; padding: 0; height: 100%; font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+    }
+  </style>
+
+  <!-- amCharts 5 core, map, geodata, animated theme -->
+  <script src="https://cdn.amcharts.com/lib/5/index.js"></script>
+  <script src="https://cdn.amcharts.com/lib/5/map.js"></script>
+  <script src="https://cdn.amcharts.com/lib/5/geodata/worldLow.js"></script>
+  <script src="https://cdn.amcharts.com/lib/5/themes/Animated.js"></script>
+</head>
+<body>
+  <div id="chartdiv"></div>
+
+  <script>
+    am5.ready(function() {
+      // Create root and set theme
+      var root = am5.Root.new("chartdiv");
+      root.setThemes([
+        am5themes_Animated.new(root)
+      ]);
+
+      // Create the map chart
+      var chart = root.container.children.push(
+        am5map.MapChart.new(root, {
+          panX: "rotateX",
+          panY: "rotateY",
+          projection: am5map.geoOrthographic()
+        })
+      );
+
+      // Create background series (water)
+      var backgroundSeries = chart.series.push(
+        am5map.MapPolygonSeries.new(root, {})
+      );
+      backgroundSeries.mapPolygons.template.setAll({
+        fill: root.interfaceColors.get("alternativeBackground"),
+        fillOpacity: 0.1,
+        strokeOpacity: 0
+      });
+      backgroundSeries.data.push({
+        geometry: am5map.getGeoRectangle(90, 180, -90, -180)
+      });
+
+      // Create country polygons
+      var polygonSeries = chart.series.push(
+        am5map.MapPolygonSeries.new(root, {
+          geoJSON: am5geodata_worldLow
+        })
+      );
+      polygonSeries.mapPolygons.template.setAll({
+        fill: root.interfaceColors.get("alternativeBackground"),
+        fillOpacity: 0.15,
+        strokeWidth: 0.5,
+        stroke: root.interfaceColors.get("background")
+      });
+
+      // Spinning animation
+      chart.animate({
+        key: "rotationY",
+        to: 360,
+        duration: 60000, // 1 minute per rotation, change as needed
+        loops: Infinity
+      });
+
+      chart.appear(1000, 100);
+    });
+  </script>
+</body>
+</html>

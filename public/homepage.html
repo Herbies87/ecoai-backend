@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Eco-AI | Sustainable AI That Doesn't Drain the Planet</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="custom.css" />
+  <style>
+    /* Tooltip style */
+    #tooltip {
+      position: absolute;
+      background: rgba(0,0,0,0.85);
+      color: white;
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      pointer-events: none;
+      white-space: nowrap;
+      z-index: 9999;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+	
+@keyframes blink {
+  0%, 50%, 100% { opacity: 1; }
+  25%, 75% { opacity: 0; }
+}
+
+.animate-blink {
+  animation: blink 1.5s infinite;
+}
+
+
+  </style>
+</head>
+<body class="bg-white text-gray-900 font-sans">
+
+<!-- Navbar -->
+<div id="top"></div>
+
+<nav class="bg-white border-b border-gray-200 sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+    <!-- Logo clickable -->
+    <div class="flex-shrink-0 cursor-pointer" id="logo">
+      <img src="./assets/eco.png" alt="EcoAI Logo" class="h-10" />
+    </div>
+
+    <!-- Desktop Menu -->
+    <ul id="menu" class="hidden md:flex space-x-6 text-gray-700 font-medium">
+      <li><a href="#top" class="hover:text-green-500 scroll-to">Home</a></li>
+      <li><a href="#tiles" class="hover:text-green-500 scroll-to">About</a></li>
+      <li><a href="#careers" class="hover:text-green-500 scroll-to">Careers</a></li>
+      <li><a href="#faq" class="hover:text-green-500 scroll-to">FAQ</a></li>
+      <li><a href="#contact" class="hover:text-green-500 scroll-to">Contact</a></li>
+    </ul>
+
+    <!-- Start Chat button navigates to index.html -->
+    <a href="index.html" class="hidden md:inline-block bg-green-500 hover:bg-green-600 text-white font-semibold rounded-full px-5 py-2 transition">
+      Start Chat
+    </a>
+
+    <!-- Hamburger menu button -->
+    <button id="hamburger" class="md:hidden flex items-center px-3 py-2 border rounded text-black border-black focus:outline-none" aria-label="Toggle menu">
+      <!-- Simple black hamburger icon with strokes -->
+      <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+        <line x1="3" y1="6" x2="21" y2="6" />
+        <line x1="3" y1="12" x2="21" y2="12" />
+        <line x1="3" y1="18" x2="21" y2="18" />
+      </svg>
+    </button>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div id="mobile-menu" class="hidden md:hidden px-6 pb-4 space-y-4 border-t border-gray-200">
+    <a href="#top" class="block text-black hover:text-green-500 scroll-to">Home</a>
+    <a href="#tiles" class="block text-black hover:text-green-500 scroll-to">About</a>
+    <a href="#careers" class="block text-black hover:text-green-500 scroll-to">Careers</a>
+    <a href="#faq" class="block text-black hover:text-green-500 scroll-to">FAQ</a>
+    <a href="#contact" class="block text-black hover:text-green-500 scroll-to">Contact</a>
+    <a href="index.html" class="block text-center bg-green-500 hover:bg-green-600 text-white font-semibold rounded-full px-5 py-2 transition">
+      Start Chat
+    </a>
+  </div>
+</nav>
+
+<script>
+  // Smooth scroll function
+  function smoothScroll(targetId) {
+    const target = document.getElementById(targetId);
+    if (!target) return;
+
+    const offset = 70; // Adjust for sticky navbar height if needed
+    const elementPosition = target.getBoundingClientRect().top + window.pageYOffset;
+    const offsetPosition = elementPosition - offset;
+
+    window.scrollTo({
+      top: offsetPosition,
+      behavior: 'smooth'
+    });
+  }
+
+  // Logo click scroll to top
+  document.getElementById('logo').addEventListener('click', () => {
+    smoothScroll('top');
+    // Also close mobile menu if open
+    if (window.innerWidth < 768) {
+      document.getElementById('mobile-menu').classList.add('hidden');
+    }
+  });
+
+  // Smooth scroll for all menu links (desktop and mobile)
+  document.querySelectorAll('a.scroll-to').forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const targetId = link.getAttribute('href').substring(1);
+      smoothScroll(targetId);
+
+      // Close mobile menu if open
+      if (window.innerWidth < 768) {
+        document.getElementById('mobile-menu').classList.add('hidden');
+      }
+    });
+  });
+
+  // Hamburger toggle
+  const hamburger = document.getElementById('hamburger');
+  const mobileMenu = document.getElementById('mobile-menu');
+  hamburger.addEventListener('click', () => {
+    mobileMenu.classList.toggle('hidden');
+  });
+</script>
+
+  
+<!-- Hero Section -->
+<section class="px-6 py-20 bg-white">
+  <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-12">
+    
+    <!-- Left: Text Content -->
+    <div class="text-center md:text-left md:w-1/2">
+      <h1 class="text-4xl sm:text-5xl font-bold leading-tight mb-4">
+        AI That Doesn’t Drain the Planet.
+      </h1>
+      <p class="text-lg sm:text-xl text-gray-700 mb-6">
+        Save Over 
+        <span class="relative group cursor-help underline text-green-500 font-semibold pr-1">
+          15,000 Gallons
+          <span class="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-56 bg-black text-white text-sm rounded px-3 py-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+            That’s enough to fill a backyard swimming pool!
+          </span>
+        </span>
+        per Hour — Just by Switching to Eco-AI
+      </p>
+
+      <div class="flex flex-wrap justify-center md:justify-start gap-4 mb-4">
+        <a href="index.html" class="bg-green-500 text-white font-semibold rounded-2xl px-6 py-3 hover:bg-green-600 transition">
+          Try Eco-AI
+        </a>
+        <a href="nodes.html" class="bg-white border border-black text-black font-semibold rounded-2xl px-6 py-3 hover:bg-gray-100 transition">
+          Run on My Device
+        </a>
+      </div>
+
+      <div class="flex flex-wrap justify-center md:justify-start gap-6 text-sm text-gray-500">
+        <div>✓ Eco Friendly: 70% less energy, 90% less water</div>
+        <div>✓ Decentralized: No big server farms</div>
+        <div>✓ Cost-Efficient: Low usage fees</div>
+      </div>
+    </div>
+
+<!-- Right: Embedded Globe with blinking active nodes badge -->
+<div class="md:w-1/2 relative overflow-hidden">
+  <iframe 
+    src="Globe.html" 
+    class="w-[120%] h-[400px] rounded-lg shadow border-0 overflow-hidden" 
+    style="background: transparent; transform: translateX(-10%);" 
+    frameborder="0" 
+    scrolling="no"
+  ></iframe>
+
+
+
+
+
+
+  <!-- Centered blinking green dot + text -->
+  <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+    <div class="flex items-center space-x-4 bg-white bg-opacity-70 rounded-lg px-8 py-4 shadow-lg select-none cursor-default">
+      <span class="w-6 h-6 bg-green-500 rounded-full animate-blink"></span>
+      <span class="text-3xl font-bold text-gray-700 group-hover:text-green-500 transition-colors">
+        35,000 active nodes
+      </span>
+    </div>
+  </div>
+</div>
+
+
+</section>
+
+
+  <!-- Scrolling Message Section -->
+  <section class="overflow-hidden bg-gray-100 py-4 border-t border-b border-gray-200">
+    <div class="scrolling-wrapper whitespace-nowrap flex gap-16 text-lg font-medium text-gray-700">
+      <span>🌱 Eco-Friendly: 70% less energy, 90% less water</span>
+      <span>📡 Decentralized: No big server farms</span>
+      <span>💸 Cost-Efficient: Leverages existing devices</span>
+      <span>🌱 Eco-Friendly: 70% less energy, 90% less water</span>
+      <span>📡 Decentralized: No big server farms</span>
+      <span>💸 Cost-Efficient: Leverages existing devices</span>
+    </div>
+  </section>
+
+  <!-- Comparison Section -->
+  
+  <section id="tiles">
+  <!-- Your about/tiles content here -->
+</section>
+
+  <section class="bg-gray-50 px-6 py-16">
+    <div class="max-w-6xl mx-auto">
+      <div class="flex items-center gap-6 mb-10">
+        <h2 class="text-2xl font-bold text-black px-3 py-1 rounded-md" style="background-color: #B9FF66;">
+          Eco-AI vs Traditional AI
+        </h2>
+        <p class="text-gray-600 max-w-xl">
+          Unlike traditional AI that relies on massive, power-hungry data centers,<br />
+          EcoAI runs on a decentralized network of everyday consumer<br />
+          devices—making it vastly more sustainable and planet-friendly.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <!-- Tile 1 -->
+        <div class="bg-white border rounded-lg p-6 shadow-sm flex justify-between items-start min-h-[260px]">
+          <div class="pr-4">
+            <h3 class="text-xl font-semibold mb-3">
+              <span style="background-color: #66BDFF;" class="text-black px-2 py-1 rounded">
+                Water Usage
+              </span>
+            </h3>
+            <p class="text-lg">A 30-word AI prompt uses a full water bottle’s worth of water.</p>
+          </div>
+          <img src="./assets/icons/water-usage.png" alt="Water Usage Icon" class="w-60 h-60 object-contain" />
+        </div>
+
+        <!-- Tile 2 - Green Background -->
+        <div class="border rounded-lg p-6 shadow-sm flex justify-between items-start min-h-[260px]" style="background-color: #B9FF66;">
+          <div class="pr-4">
+            <h3 class="text-2xl font-semibold mb-3">
+              <span class="bg-white text-black px-2 py-1 rounded">
+                Energy Usage
+              </span>
+            </h3>
+            <p class="text-lg">
+              A single AI prompt can use as much electricity as 1,000 light bulbs. Eco-AI runs on low-wattage devices.
+            </p>
+          </div>
+          <img src="./assets/icons/energy-usage.png" alt="Energy Usage Icon" class="w-60 h-60 object-contain" />
+        </div>
+
+        <!-- Tile 3 - Off Black Background with Title Highlight -->
+        <div class="border rounded-lg p-10 shadow-sm flex justify-between items-start text-white min-h-[280px]" style="background-color: #1a1a1a;">
+          <div class="pr-6">
+            <h3 class="text-xl font-semibold mb-4 inline-block bg-white text-black px-2 py-1 rounded">
+              AI Growth vs The Earth
+            </h3>
+            <p class="text-lg leading-relaxed">
+              By 2050, AI is expected to demand one-fifth of the world’s energy supply. Large AI companies prioritize delivering the fastest, most accurate responses—often disregarding the environmental impact. We’re here to change that because we believe AI is the future, but what kind of future do we have if the planet is destroyed in the process?
+            </p>
+          </div>
+        </div>
+
+        <!-- Tile 4 - White Background with Green Highlight on Title -->
+        <div class="bg-white border rounded-lg p-10 shadow-sm flex justify-between items-start min-h-[280px]">
+          <div class="pr-6">
+            <h3 class="text-xl font-semibold mb-4 inline-block bg-[#B9FF66] text-black px-2 py-1 rounded">
+              Our Network
+            </h3>
+            <p class="text-lg text-gray-800 leading-relaxed">
+              The EcoAI Network runs entirely on consumer-owned nodes using everyday devices like yours instead of energy-hungry data centers to create a cleaner, decentralized AI future.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Careers Section -->
+  <section id="careers" class="px-6 py-16 max-w-6xl mx-auto bg-gray-100">
+    <div class="flex flex-col md:flex-row items-center md:items-start gap-8">
+      <!-- Left Content -->
+      <div class="md:w-1/2">
+        <h2 class="text-2xl font-bold mb-6">Join the Future of Sustainable AI</h2>
+        <p class="mb-4">Are you passionate about AI? Can you code? We're building a groundbreaking, eco-conscious AI network—and we’re looking for forward-thinking developers, engineers, and innovators to help redefine the future of technology.</p>
+        <p><strong>Let’s create the future—without compromising it.</strong></p>
+        <a href="#" class="cta-button mt-4 inline-block text-white rounded bg-[#191A23] px-6 py-3 text-lg">
+          Careers
+        </a>
+      </div>
+
+      <!-- Right Hero Image -->
+      <div class="md:w-1/2 h-96 p-0"> <!-- remove padding -->
+        <img src="./assets/hero-image.png" alt="Hero image of sustainable AI" class="w-full h-full rounded-lg object-contain" />
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Section about Eco-AI -->
+  <section id="faq" class="bg-gray-50 px-6 py-16 relative">
+    <div class="max-w-4xl mx-auto">
+      <h2 class="text-2xl font-bold mb-6">What is Eco-AI and Why Is It Better?</h2>
+      <div class="space-y-4">
+        <details class="border border-gray-200 rounded-lg p-4">
+          <summary class="font-semibold cursor-pointer">What is Eco-AI?</summary>
+          <p class="mt-2 text-gray-700">
+            Eco-AI is a decentralized artificial intelligence system that runs on a network of consumer-owned nodes using everyday devices, 
+            rather than massive centralized data centers. This approach drastically reduces energy consumption and environmental impact.
+          </p>
+        </details>
+
+        <details class="border border-gray-200 rounded-lg p-4">
+          <summary class="font-semibold cursor-pointer">Why is Eco-AI better than traditional AI?</summary>
+          <p class="mt-2 text-gray-700">
+            Traditional AI relies on huge, power-hungry data centers often powered by non-renewable energy sources. Eco-AI prioritizes sustainability by distributing workloads to greener devices, reducing carbon footprint while maintaining performance.
+          </p>
+        </details>
+
+        <details class="border border-gray-200 rounded-lg p-4">
+          <summary class="font-semibold cursor-pointer">How does Eco-AI route customer queries?</summary>
+          <p class="mt-2 text-gray-700">
+            We intelligently route customer queries and AI responses to the most eco-friendly servers available. This means considering not just speed but also power sources like solar, wind, nuclear, or coal. 
+            For example, if it’s daytime and solar-powered servers are available in a location, queries will be directed there to maximize green energy use.
+          </p>
+        </details>
+
+        <details class="border border-gray-200 rounded-lg p-4">
+          <summary class="font-semibold cursor-pointer">Does this affect AI speed or accuracy?</summary>
+          <p class="mt-2 text-gray-700">
+            Eco-AI balances efficiency and eco-friendliness by selecting servers that are both green and performant. This ensures fast, accurate AI responses without sacrificing sustainability.
+          </p>
+        </details>
+
+        <details class="border border-gray-200 rounded-lg p-4">
+          <summary class="font-semibold cursor-pointer">How is power source data integrated?</summary>
+          <p class="mt-2 text-gray-700">
+            Our system continuously monitors the energy profiles of nodes, including the type of power source and current availability, 
+            to make real-time routing decisions that maximize use of renewable energy.
+          </p>
+        </details>
+
+        <details class="border border-gray-200 rounded-lg p-4">
+          <summary class="font-semibold cursor-pointer">How can I contribute to the Eco-AI mission?</summary>
+          <p class="mt-2 text-gray-700">
+            You can join our node system to help strengthen and grow our network. By contributing your computing power, you assist in processing AI queries sustainably, and you'll receive compensation for every query your computer handles.
+          </p>
+        </details>
+
+        <details class="border border-gray-200 rounded-lg p-4">
+          <summary class="font-semibold cursor-pointer">How does Eco-AI's growth compare to large data centers?</summary>
+          <p class="mt-2 text-gray-700">
+            Traditional data centers grow linearly—they must build new facilities and invest heavily to scale. Eco-AI’s network grows exponentially with every new node added, and as consumers upgrade to newer GPUs, the network automatically becomes more powerful. This growth requires minimal investment from Eco-AI, with increased computational power compensated directly to node operators.
+          </p>
+        </details>
+
+        <!-- New FAQ with bar graph and hover tooltip -->
+        <details class="border border-gray-200 rounded-lg p-4 relative">
+          <summary class="font-semibold cursor-pointer">Eco-AI vs Large AI Metrics</summary>
+          <div class="mt-4 space-y-6 relative">
+            <!-- Power Usage -->
+            <div>
+              <div class="flex justify-between mb-1">
+                <span class="font-semibold">Power Usage</span>
+                <span>Eco-AI vs Large AI</span>
+              </div>
+              <div class="w-full bg-gray-300 rounded-full h-6 flex items-center space-x-2 relative">
+                <!-- Eco-AI bar -->
+                <div class="bar eco-ai bg-green-500 h-4 rounded-full cursor-pointer" style="width: 20%;" 
+                     data-tooltip="Eco-AI Power Usage: 200 MW per year"></div>
+                <span class="text-green-700 font-semibold text-sm">20%</span>
+                <!-- Large AI bar -->
+                <div class="bar large-ai bg-red-500 h-4 rounded-full ml-6 cursor-pointer" style="width: 80%;" 
+                     data-tooltip="Large AI Power Usage: 800 MW per year"></div>
+                <span class="text-red-700 font-semibold text-sm">80%</span>
+              </div>
+            </div>
+
+           <!-- Water Usage -->
+<div>
+  <div class="flex justify-between mb-1">
+    <span class="font-semibold">Water Usage</span>
+    <span>Eco-AI vs Large AI</span>
+  </div>
+  <div class="w-full bg-gray-300 rounded-full h-6 flex items-center space-x-2 relative">
+    <div class="bar eco-ai bg-green-500 h-4 rounded-full cursor-pointer" style="width: 15%;" 
+         data-tooltip="Eco-AI Water Usage: 150,000 gallons per year"></div>
+    <span class="text-green-700 font-semibold text-sm">15%</span>
+    <div class="bar large-ai bg-red-500 h-4 rounded-full ml-6 cursor-pointer" style="width: 85%;" 
+         data-tooltip="Large AI Water Usage: 850,000 gallons per year"></div>
+    <span class="text-red-700 font-semibold text-sm">85%</span>
+  </div>
+</div>
+
+<!-- Resource Consumption -->
+<div>
+  <div class="flex justify-between mb-1">
+    <span class="font-semibold">Resource Consumption</span>
+    <span>Eco-AI vs Large AI</span>
+  </div>
+  <div class="w-full bg-gray-300 rounded-full h-6 flex items-center space-x-2 relative">
+    <div class="bar eco-ai bg-green-500 h-4 rounded-full cursor-pointer" style="width: 25%;" 
+         data-tooltip="Eco-AI Resource Use: 25% of traditional AI"></div>
+    <span class="text-green-700 font-semibold text-sm">25%</span>
+    <div class="bar large-ai bg-red-500 h-4 rounded-full ml-6 cursor-pointer" style="width: 75%;" 
+         data-tooltip="Large AI Resource Use: 75%"></div>
+    <span class="text-red-700 font-semibold text-sm">75%</span>
+  </div>
+</div>
+
+<!-- Tooltip container somewhere in your HTML (just once) -->
+<div id="tooltip" style="position:absolute; background: rgba(0,0,0,0.85); color:white; padding:6px 10px; border-radius:4px; font-size:0.75rem; pointer-events:none; white-space:nowrap; opacity:0; transition:opacity 0.2s ease; z-index:9999;"></div>
+
+<script>
+  const tooltip = document.getElementById('tooltip');
+
+  document.querySelectorAll('.bar').forEach(bar => {
+    bar.addEventListener('mousemove', (e) => {
+      tooltip.textContent = bar.getAttribute('data-tooltip');
+      tooltip.style.opacity = '1';
+
+      const tooltipWidth = tooltip.offsetWidth;
+      let left = e.pageX + 12;
+      let top = e.pageY + 12;
+
+      // Keep tooltip inside viewport horizontally
+      if (left + tooltipWidth > window.innerWidth) {
+        left = e.pageX - tooltipWidth - 12;
+      }
+
+      tooltip.style.left = left + 'px';
+      tooltip.style.top = top + 'px';
+    });
+
+    bar.addEventListener('mouseleave', () => {
+      tooltip.style.opacity = '0';
+    });
+  });
+</script>
+
+        </details>
+      </div>
+    </div>
+
+    <div id="tooltip"></div>
+
+    <script>
+      const tooltip = document.getElementById('tooltip');
+
+      document.querySelectorAll('.bar').forEach(bar => {
+        bar.addEventListener('mousemove', (e) => {
+          tooltip.textContent = bar.getAttribute('data-tooltip');
+          tooltip.style.opacity = '1';
+          // Position tooltip near mouse pointer with offset
+          tooltip.style.left = (e.pageX + 12) + 'px';
+          tooltip.style.top = (e.pageY + 12) + 'px';
+        });
+
+        bar.addEventListener('mouseleave', () => {
+          tooltip.style.opacity = '0';
+        });
+      });
+    </script>
+  </section>
+
+  <!-- Contact Section -->
+  <section id="contact" class="px-6 py-16 max-w-4xl mx-auto">
+    <h2 class="text-2xl font-bold mb-6">Contact Us</h2>
+    <form class="space-y-4">
+      <input type="text" placeholder="Name" class="w-full border border-gray-300 rounded px-4 py-3" />
+      <input type="email" placeholder="Email" class="w-full border border-gray-300 rounded px-4 py-3" />
+      <textarea rows="5" placeholder="Message" class="w-full border border-gray-300 rounded px-4 py-3"></textarea>
+      <button class="cta-button bg-black text-white">Send Message</button>
+    </form>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-black text-white py-12 px-6">
+    <div class="max-w-6xl mx-auto grid md:grid-cols-3 gap-8">
+      <div>
+        <h3 class="font-semibold mb-2">Contact Us</h3>
+        <p>Email: info@aquavita.com</p>
+        <p>Phone: (800) 456-789</p>
+        <p>Address: Southern, California</p>
+      </div>
+      <div>
+        <h3 class="font-semibold mb-2">Explore</h3>
+        <ul class="space-y-1 text-gray-300">
+          <li><a href="#">About Us</a></li>
+          <li><a href="#">Services</a></li>
+          <li><a href="#">Pricing</a></li>
+          <li><a href="#">Blog</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="font-semibold mb-2">Newsletter</h3>
+        <input type="email" placeholder="Enter your email" class="w-full px-4 py-3 rounded mb-2" />
+        <button class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold rounded px-4 py-3">Subscribe to news</button>
+      </div>
+    </div>
+    <div class="mt-12 text-center text-gray-400 text-sm">&copy; 2025 Aquavita. All Rights Reserved. Patent Pending. <a href="#" class="underline">Privacy Policy</a></div>
+  </footer>
+
+  <!-- Fixed Patent Pending Info Box -->
+  <div
+    class="fixed bottom-6 right-6 flex items-center gap-3 bg-gray-800 bg-opacity-60 rounded-lg px-4 py-2 shadow-lg cursor-default select-none z-50"
+    style="backdrop-filter: blur(8px);"
+    aria-label="Patent Pending Information"
+  >
+    <!-- Circle with exclamation mark -->
+    <div
+      class="flex items-center justify-center rounded-full bg-white text-black w-6 h-6 font-bold text-sm select-none"
+      aria-hidden="true"
+    >
+      !
+    </div>
+    <span class="text-white font-semibold text-sm">Patent Pending</span>
+  </div>
+
+</body>
+</html>

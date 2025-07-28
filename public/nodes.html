@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Run Eco-AI on My Device</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-white text-gray-800">
+
+  <!-- Navbar -->
+  <nav class="bg-white border-b border-gray-200 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      <div class="flex-shrink-0 cursor-pointer" onclick="window.location.href='index.html'">
+        <img src="./assets/eco.png" alt="EcoAI Logo" class="h-10" />
+      </div>
+
+      <ul class="hidden md:flex space-x-6 text-gray-700 font-medium">
+        <li><a href="index.html" class="hover:text-green-500">Home</a></li>
+        <li><a href="#overview" class="hover:text-green-500">Overview</a></li>
+        <li><a href="#setup" class="hover:text-green-500">Setup</a></li>
+        <li><a href="#faq" class="hover:text-green-500">FAQ</a></li>
+        <li><a href="#contact" class="hover:text-green-500">Contact</a></li>
+      </ul>
+
+      <a href="index.html" class="hidden md:inline-block bg-green-500 hover:bg-green-600 text-white font-semibold rounded-full px-5 py-2 transition">
+        Back to Home
+      </a>
+
+      <!-- Hamburger (for mobile) -->
+      <button id="hamburger" class="md:hidden flex items-center px-3 py-2 border rounded text-black border-black focus:outline-none" aria-label="Toggle menu">
+        <svg class="fill-current h-6 w-6" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+      </button>
+    </div>
+
+    <div id="mobile-menu" class="hidden md:hidden px-6 pb-4 space-y-4 border-t border-gray-200">
+      <a href="index.html" class="block text-black hover:text-green-500">Home</a>
+      <a href="#overview" class="block text-black hover:text-green-500">Overview</a>
+      <a href="#setup" class="block text-black hover:text-green-500">Setup</a>
+      <a href="#faq" class="block text-black hover:text-green-500">FAQ</a>
+      <a href="#contact" class="block text-black hover:text-green-500">Contact</a>
+      <a href="index.html" class="block text-center bg-green-500 hover:bg-green-600 text-white font-semibold rounded-full px-5 py-2 transition">
+        Back to Home
+      </a>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="px-6 py-20 max-w-7xl mx-auto">
+    <h1 class="text-4xl font-bold mb-6 text-center text-green-600">
+      Run Eco-AI on Your Device
+    </h1>
+    <p class="text-center max-w-3xl mx-auto text-lg text-gray-700 mb-10">
+      Experience decentralized AI that respects your privacy and helps save the planet by running directly on your device. Follow the steps below to get started.
+    </p>
+
+    <!-- Placeholder Content Sections -->
+    <section id="overview" class="mb-16">
+      <h2 class="text-2xl font-semibold mb-4">Overview</h2>
+      <p class="text-gray-700">
+        Eco-AI lets you run AI models locally without relying on large centralized servers, reducing energy consumption and increasing privacy.
+      </p>
+    </section>
+
+    <section id="setup" class="mb-16">
+      <h2 class="text-2xl font-semibold mb-4">Setup Instructions</h2>
+      <ol class="list-decimal list-inside text-gray-700 space-y-2">
+        <li>Download the Eco-AI client application from <a href="#" class="text-green-600 underline">here</a>.</li>
+        <li>Install the application on your device following the on-screen instructions.</li>
+        <li>Configure your preferences and start running AI tasks locally.</li>
+      </ol>
+    </section>
+
+    <section id="faq" class="mb-16">
+      <h2 class="text-2xl font-semibold mb-4">FAQ</h2>
+      <p class="text-gray-700 mb-2"><strong>Q:</strong> Is my data safe?</p>
+      <p class="mb-4">A: Yes, all processing is done locally on your device, so your data never leaves it.</p>
+      <p class="text-gray-700 mb-2"><strong>Q:</strong> What devices are supported?</p>
+      <p>A: Eco-AI currently supports Windows, macOS, and Linux desktops.</p>
+    </section>
+
+    <section id="contact" class="mb-16">
+      <h2 class="text-2xl font-semibold mb-4">Contact Us</h2>
+      <p class="text-gray-700">Have questions or need support? Reach out at <a href="mailto:support@eco-ai.com" class="text-green-600 underline">support@eco-ai.com</a>.</p>
+    </section>
+  </section>
+
+  <script>
+    // Hamburger toggle script
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobile-menu');
+    hamburger.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+    });
+  </script>
+</body>
+</html>

@@ -1,8 +1,8 @@
-// server.js
 import express from 'express';
 import cors from 'cors';
 import { config } from 'dotenv';
 import OpenAI from 'openai';
+import rateLimit from 'express-rate-limit';
 
 config();
 
@@ -19,7 +19,18 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-app.post('/chat', async (req, res) => {
+// Rate limiter: max 10 requests per minute per IP
+const limiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 10,             // limit each IP to 10 requests per window
+  message: {
+    error: 'Too many requests, please try again later to help save the planet 🌍'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+app.post('/chat', limiter, async (req, res) => {
   try {
     const { messages } = req.body;
 
