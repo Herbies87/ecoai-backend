@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Eco-AI Dashboard</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 2rem;
+      background-color: #f4f4f4;
+    }
+    h1 {
+      color: #1a1a1a;
+    }
+    .dashboard {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+    .card {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    canvas {
+      max-width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <h1>Eco-AI Live Dashboard</h1>
+  <div class="dashboard">
+    <div class="card">
+      <h2>Current Active Users</h2>
+      <p style="font-size: 2rem;"><span id="userCount">0</span></p>
+    </div>
+
+    <div class="card">
+      <h2>Total Chats Today</h2>
+      <p style="font-size: 2rem;"><span id="chatCount">0</span></p>
+    </div>
+
+    <div class="card">
+      <h2>Visitors Trend</h2>
+      <canvas id="visitorsChart" height="200"></canvas>
+    </div>
+
+    <div class="card">
+      <h2>Live User Distribution</h2>
+      <canvas id="liveUsersCircle" height="200"></canvas>
+    </div>
+  </div>
+
+  <script>
+    const socket = io();
+    const userCountEl = document.getElementById('userCount');
+    const chatCountEl = document.getElementById('chatCount');
+
+    socket.on('usersUpdated', (count) => {
+      userCountEl.textContent = count;
+      updateLiveUsersCircle(count);
+    });
+
+    socket.on('chatStatsUpdated', (count) => {
+      chatCountEl.textContent = count;
+    });
+
+    // Dummy visitor data (replace with backend endpoint if needed)
+    const visitorData = {
+      labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+      data: [120, 190, 300, 150, 200, 170, 240]
+    };
+
+    const ctxVisitors = document.getElementById('visitorsChart').getContext('2d');
+    new Chart(ctxVisitors, {
+      type: 'line',
+      data: {
+        labels: visitorData.labels,
+        datasets: [{
+          label: 'Visitors (per day)',
+          data: visitorData.data,
+          borderColor: '#66BDFF',
+          backgroundColor: 'rgba(102,189,255,0.2)',
+          tension: 0.4
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            display: false
+          }
+        }
+      }
+    });
+
+    let liveUsersChart;
+    function updateLiveUsersCircle(count) {
+      if (liveUsersChart) {
+        liveUsersChart.data.datasets[0].data = [count, 100 - count];
+        liveUsersChart.update();
+        return;
+      }
+
+      const ctxLive = document.getElementById('liveUsersCircle').getContext('2d');
+      liveUsersChart = new Chart(ctxLive, {
+        type: 'doughnut',
+        data: {
+          labels: ['Active', 'Idle'],
+          datasets: [{
+            data: [count, 100 - count],
+            backgroundColor: ['#B9FF66', '#e0e0e0']
+          }]
+        },
+        options: {
+          cutout: '70%',
+          plugins: {
+            legend: {
+              position: 'bottom'
+            }
+          }
+        }
+      });
+    }
+  </script>
+</body>
+</html>

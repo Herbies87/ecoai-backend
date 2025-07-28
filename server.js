@@ -5,11 +5,16 @@ import OpenAI from 'openai';
 import rateLimit from 'express-rate-limit';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import http from 'http';
+import { Server } from 'socket.io';
 
 // Load environment variables from .env
 config();
 
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
+
 const port = process.env.PORT || 3000;
 
 // Needed to resolve __dirname in ES modules
@@ -28,9 +33,14 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Optional route for chat.html if needed
+// Optional route for chat.html
 app.get('/chat', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'chat.html'));
+});
+
+// Serve dashboard.html for user count dashboard
+app.get('/dashboard', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
 });
 
 // Initialize OpenAI client with your API key from .env
@@ -73,7 +83,22 @@ app.post('/chat', limiter, async (req, res) => {
   }
 });
 
-// Start server
-app.listen(port, () => {
+// Track current active users via Socket.io
+let currentUsers = 0;
+
+io.on('connection', (socket) => {
+  currentUsers++;
+  console.log(`User connected. Total users: ${currentUsers}`);
+  io.emit('usersUpdated', currentUsers);
+
+  socket.on('disconnect', () => {
+    currentUsers--;
+    console.log(`User disconnected. Total users: ${currentUsers}`);
+    io.emit('usersUpdated', currentUsers);
+  });
+});
+
+// Start server using the HTTP server instead of app.listen
+server.listen(port, () => {
   console.log(`Server listening on http://localhost:${port}`);
 });
