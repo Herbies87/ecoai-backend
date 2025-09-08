@@ -1,4 +1,4 @@
-// server.js (ESM)
+// server.js (ESM, Express 5-safe)
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -13,54 +13,40 @@ const __dirname  = path.dirname(__filename);
 const app  = express();
 const PORT = process.env.PORT || 3000;
 
-/* ---------------- CORS ---------------- */
-const DEFAULT_ORIGINS = [
-  'https://www.aquavita.io',
-  'https://aquavita.io',
-  'http://localhost:3000',
-  'http://localhost:5173',
-  'http://127.0.0.1:3000'
-];
+// Trust Render/Proxy headers for correct IPs, HTTPS, etc.
+app.set('trust proxy', 1);
 
-const ALLOWLIST = (process.env.CORS_ORIGINS || '')
+// ---- CORS ----
+// Set CORS_ORIGINS="https://www.aquavita.io,http://localhost:8080" in Render env
+const allowList = (process.env.CORS_ORIGINS || '')
   .split(',')
   .map(s => s.trim())
   .filter(Boolean);
 
-const ALLOWED = ALLOWLIST.length ? ALLOWLIST : DEFAULT_ORIGINS;
-
-// optional: allow any subdomain of aquavita.io
-const SUBDOMAIN_RX = /^https?:\/\/([a-z0-9-]+\.)*aquavita\.io(:\d+)?$/i;
-
 const corsOptions = {
-  origin(origin, cb) {
-    // non-browser or same-origin/curl: allow
-    if (!origin) return cb(null, true);
-    if (ALLOWED.includes(origin) || SUBDOMAIN_RX.test(origin)) return cb(null, true);
-    return cb(new Error(`CORS blocked for origin: ${origin}`));
+  origin: (origin, cb) => {
+    // allow no-origin (curl, health checks) and allowList matches
+    if (!origin || allowList.length === 0 || allowList.includes(origin)) return cb(null, true);
+    return cb(new Error('CORS blocked for origin: ' + origin));
   },
-  methods: ['GET', 'HEAD', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-Eco-Mode'],
+  methods: ['GET','POST','OPTIONS'],
+  allowedHeaders: ['Content-Type','Authorization','X-Requested-With'],
+  credentials: false,
   maxAge: 86400
 };
 
+// Always vary on Origin so caches don’t poison
+app.use((req, res, next) => { res.setHeader('Vary', 'Origin'); next(); });
 app.use(cors(corsOptions));
-// handle preflight for everything (important!)
-app.options('*', cors(corsOptions));
+app.options('/api/*', cors(corsOptions)); // preflight for API
 
-/* ---------------- Parsers ---------------- */
+// ---- Body parsing ----
 app.use(express.json({ limit: '1mb' }));
 
-/* ---------------- Health ---------------- */
+// ---- Health ----
 app.get('/healthz', (_req, res) => res.json({ ok: true }));
 
-/* ---------------- Debug (see CORS hits) ---------------- */
-app.use('/api/openai', (req, _res, next) => {
-  console.log(`[hit] ${req.method} ${req.originalUrl} from ${req.headers.origin || 'no-origin'}`);
-  next();
-});
-
-/* ---------------- Chat proxy to OpenAI ---------------- */
+// ---- Chat proxy to OpenAI ----
 app.post('/api/openai/chat', async (req, res) => {
   try {
     const {
@@ -70,7 +56,10 @@ app.post('/api/openai/chat', async (req, res) => {
     } = process.env;
 
     if (!OPENAI_API_KEY) {
-      return res.status(500).json({ error: 'missing_openai_key', detail: 'Set OPENAI_API_KEY in your environment.' });
+      return res.status(500).json({
+        error: 'missing_openai_key',
+        detail: 'Set OPENAI_API_KEY in your environment.'
+      });
     }
 
     const { messages = [], eco = true, max_tokens = 800 } = req.body || {};
@@ -107,7 +96,6 @@ app.post('/api/openai/chat', async (req, res) => {
 
     const data = await r.json();
     const reply = data?.choices?.[0]?.message?.content ?? '(no content)';
-    res.setHeader('Vary', 'Origin'); // good practice with CORS
     res.json({ reply });
   } catch (err) {
     console.error('OpenAI proxy error:', err);
@@ -115,13 +103,25 @@ app.post('/api/openai/chat', async (req, res) => {
   }
 });
 
-/* ---------------- Static (optional) ---------------- */
+// ---- Static files (optional) ----
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Optional SPA fallback
-// app.get('*', (_req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
+// ---- SPA fallback WITHOUT '*' wildcard (Express 5 safe) ----
+// Serve index.html for any GET that isn't an API or a real file.
+app.use((req, res, next) => {
+  if (req.method !== 'GET') return next();
+  if (req.path.startsWith('/api/')) return next();
+  // If you only want to fallback for “unknown” paths, you can check file existence here.
+  return res.sendFile(path.join(__dirname, 'public', 'index.html'), (err) => {
+    if (err) next(); // if index.html missing, continue to 404
+  });
+});
 
-/* ---------------- Start ---------------- */
+// ---- 404 for everything else ----
+app.use((req, res) => {
+  res.status(404).json({ error: 'not_found' });
+});
+
 app.listen(PORT, () => {
   console.log(`Eco-AI server listening on :${PORT}`);
 });
