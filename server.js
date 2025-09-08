@@ -1,114 +1,127 @@
+// server.js (ESM)
 import express from 'express';
 import cors from 'cors';
-import { config } from 'dotenv';
-import OpenAI from 'openai';
-import rateLimit from 'express-rate-limit';
+import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import http from 'http';
-import { Server } from 'socket.io';
 
-// Load environment variables from .env
-config();
+dotenv.config();
 
-const app = express();
-const server = http.createServer(app);
-const io = new Server(server, {
-  cors: {
-    origin: '*',
-    methods: ['GET', 'POST']
-  }
-});
-
-const port = process.env.PORT || 3000;
-
-// Resolve __dirname in ES module
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __dirname  = path.dirname(__filename);
 
-// Middleware
-app.use(cors());
-app.use(express.json());
+const app  = express();
+const PORT = process.env.PORT || 3000;
 
-// Serve static files from public directory
-app.use(express.static(path.join(__dirname, 'public')));
+/* ---------------- CORS ---------------- */
+const DEFAULT_ORIGINS = [
+  'https://www.aquavita.io',
+  'https://aquavita.io',
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'http://127.0.0.1:3000'
+];
 
-// Serve root page
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
+const ALLOWLIST = (process.env.CORS_ORIGINS || '')
+  .split(',')
+  .map(s => s.trim())
+  .filter(Boolean);
 
-// Optional routes
-app.get('/chat', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'chat.html'));
-});
+const ALLOWED = ALLOWLIST.length ? ALLOWLIST : DEFAULT_ORIGINS;
 
-app.get('/dashboard', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
-});
+// optional: allow any subdomain of aquavita.io
+const SUBDOMAIN_RX = /^https?:\/\/([a-z0-9-]+\.)*aquavita\.io(:\d+)?$/i;
 
-// OpenAI client initialization
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
-// Rate limiting for OpenAI endpoint
-const limiter = rateLimit({
-  windowMs: 60 * 1000,
-  max: 10,
-  message: {
-    error: 'Too many requests, please try again later to help save the planet 🌍'
+const corsOptions = {
+  origin(origin, cb) {
+    // non-browser or same-origin/curl: allow
+    if (!origin) return cb(null, true);
+    if (ALLOWED.includes(origin) || SUBDOMAIN_RX.test(origin)) return cb(null, true);
+    return cb(new Error(`CORS blocked for origin: ${origin}`));
   },
-  standardHeaders: true,
-  legacyHeaders: false,
+  methods: ['GET', 'HEAD', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-Eco-Mode'],
+  maxAge: 86400
+};
+
+app.use(cors(corsOptions));
+// handle preflight for everything (important!)
+app.options('*', cors(corsOptions));
+
+/* ---------------- Parsers ---------------- */
+app.use(express.json({ limit: '1mb' }));
+
+/* ---------------- Health ---------------- */
+app.get('/healthz', (_req, res) => res.json({ ok: true }));
+
+/* ---------------- Debug (see CORS hits) ---------------- */
+app.use('/api/openai', (req, _res, next) => {
+  console.log(`[hit] ${req.method} ${req.originalUrl} from ${req.headers.origin || 'no-origin'}`);
+  next();
 });
 
-// Track total chats for dashboard
-let totalChatsToday = 0;
-
-// OpenAI chat API
-app.post('/chat', limiter, async (req, res) => {
+/* ---------------- Chat proxy to OpenAI ---------------- */
+app.post('/api/openai/chat', async (req, res) => {
   try {
-    const { messages } = req.body;
+    const {
+      OPENAI_API_KEY,
+      OPENAI_CHAT_MODEL = 'gpt-4o-mini',
+      OPENAI_TEMPERATURE = '0.7'
+    } = process.env;
 
-    if (!messages || !Array.isArray(messages)) {
-      return res.status(400).json({ error: 'Invalid messages format' });
+    if (!OPENAI_API_KEY) {
+      return res.status(500).json({ error: 'missing_openai_key', detail: 'Set OPENAI_API_KEY in your environment.' });
     }
 
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages,
-      max_tokens: 300,
+    const { messages = [], eco = true, max_tokens = 800 } = req.body || {};
+    if (!Array.isArray(messages)) {
+      return res.status(400).json({ error: 'bad_request', detail: 'messages must be an array' });
+    }
+
+    const system = {
+      role: 'system',
+      content:
+        'You are Eco-AI, a helpful assistant focused on sustainability. ' +
+        'Explain clearly, highlight benefits of decentralized / renewable-powered AI when relevant, and be concise.' +
+        (eco ? ' Prefer greener compute metaphors and briefly explain trade-offs.' : '')
+    };
+
+    const r = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${OPENAI_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: OPENAI_CHAT_MODEL,
+        temperature: Number(OPENAI_TEMPERATURE) || 0.7,
+        max_tokens,
+        messages: [system, ...messages]
+      })
     });
 
-    const reply = completion.choices[0].message.content;
+    if (!r.ok) {
+      const text = await r.text().catch(() => '');
+      return res.status(502).json({ error: 'openai_error', detail: text || `${r.status} ${r.statusText}` });
+    }
 
-    totalChatsToday++;
-    io.emit('chatStatsUpdated', totalChatsToday);
-
+    const data = await r.json();
+    const reply = data?.choices?.[0]?.message?.content ?? '(no content)';
+    res.setHeader('Vary', 'Origin'); // good practice with CORS
     res.json({ reply });
-  } catch (error) {
-    console.error('OpenAI API error:', error);
-    res.status(500).json({ error: 'OpenAI API error' });
+  } catch (err) {
+    console.error('OpenAI proxy error:', err);
+    res.status(500).json({ error: 'server_error' });
   }
 });
 
-// --- Live user tracking using Set ---
-const activeConnections = new Set();
+/* ---------------- Static (optional) ---------------- */
+app.use(express.static(path.join(__dirname, 'public')));
 
-io.on('connection', (socket) => {
-  activeConnections.add(socket.id);
-  console.log(`🔌 User connected: ${socket.id} | Active: ${activeConnections.size}`);
-  io.emit('usersUpdated', activeConnections.size);
+// Optional SPA fallback
+// app.get('*', (_req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
-  socket.on('disconnect', () => {
-    activeConnections.delete(socket.id);
-    console.log(`❌ User disconnected: ${socket.id} | Active: ${activeConnections.size}`);
-    io.emit('usersUpdated', activeConnections.size);
-  });
-});
-
-// Start HTTP server
-server.listen(port, () => {
-  console.log(`✅ Server running at http://localhost:${port}`);
+/* ---------------- Start ---------------- */
+app.listen(PORT, () => {
+  console.log(`Eco-AI server listening on :${PORT}`);
 });
